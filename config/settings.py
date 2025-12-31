@@ -163,3 +163,11 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000  # 1 ano
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+    # Configuração de E-mail (Gmail)
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'semearimct.23@gmail.com' # Coloque o e-mail do projeto
+EMAIL_HOST_PASSWORD = 'cray yahz dfxv pqjr' # NÃO É A SENHA DO E-MAIL (Veja abaixo)

@@ -136,10 +136,16 @@
                     <!--<a class="list-group-item" href="{% url 'meus_pagamentos' %}"><i class="bi bi-credit-card"></i> Financeiro</a>-->
                 {% endif %}
 
+                <div class="sidebar-label">Conta</div>
+                <a class="list-group-item" href="{% url 'password_change' %}">
+                    <i class="bi bi-shield-lock"></i> Alterar Senha
+                </a>
                 <div class="my-4"></div>
                 <form action="{% url 'logout' %}" method="post">
                     {% csrf_token %}
-                    <button type="submit" class="list-group-item text-danger w-100 text-start"><i class="bi bi-box-arrow-left"></i> Sair</button>
+                    <button type="submit" class="list-group-item text-danger w-100 text-start">
+                        <i class="bi bi-box-arrow-left"></i> Sair
+                    </button>
                 </form>
 
             {% else %}
