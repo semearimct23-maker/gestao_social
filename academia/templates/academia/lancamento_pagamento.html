@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %} {% block title %}Lançamento Financeiro{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        
+        <div class="card-form">
+            
+            <div class="form-header">
+                <h2 class="fw-bold text-dark">💰 Lançamento de Pagamento</h2>
+                <p class="text-muted">Registre pagamentos em dinheiro, pix ou cartão.</p>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                {{ form|crispy }}
+                
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-check-circle"></i> Confirmar Recebimento
+                    </button>
+                    
+                    <a href="{% url 'dashboard_adm' %}" class="btn btn-link text-muted text-decoration-none text-center">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

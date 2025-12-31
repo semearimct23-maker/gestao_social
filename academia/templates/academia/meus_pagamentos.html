@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Financeiro{% endblock %}
+{% block content %}
+    <h1>Meus Pagamentos</h1>
+    <p>Envie seus comprovantes e acompanhe a aprovação.</p>
+    <hr>
+
+    <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+        <h3>Novo Pagamento</h3>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+             {{ form|crispy }}
+            <button type="submit" style="background-color: #2ecc71; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                Enviar Comprovante
+            </button>
+        </form>
+    </div>
+
+    <h3>Histórico</h3>
+    
+    {% if not historico %}
+        <p>Nenhum pagamento registrado.</p>
+    {% else %}
+        <table border="1" cellpadding="10" style="border-collapse: collapse; width: 100%;">
+            <thead style="background-color: #eee;">
+                <tr>
+                    <th>Data Envio</th>
+                    <th>Referência</th>
+                    <th>Curso</th> <th>Valor</th>
+                    <th>Comprovante</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in historico %}
+                    <tr>
+                        <td>{{ p.data_pagamento|date:"d/m/Y H:i" }}</td>
+                        <td>{{ p.get_mes_display }} / {{ p.ano }}</td>
+                        
+                        <td>
+                            {% if p.curso %}
+                                {{ p.curso.nome }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td>R$ {{ p.valor }}</td>
+                        <td>
+                            {% if p.comprovante %}
+                                <a href="{{ p.comprovante.url }}" target="_blank">Ver Arquivo</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if p.confirmado %}
+                                <span style="color: green; font-weight: bold;">APROVADO ✅</span>
+                            {% else %}
+                                <span style="color: orange; font-weight: bold;">PENDENTE ⏳</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+{% endblock %}

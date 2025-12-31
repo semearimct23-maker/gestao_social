@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Editar Curso{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        
+        <div class="card-form">
+            <div class="form-header">
+                <h2 class="fw-bold text-dark">✏️ Editar Curso</h2>
+                <p class="text-muted">Alterando: <strong>{{ curso.nome }}</strong></p>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                {{ form|crispy }}
+                
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-save"></i> Salvar Alterações
+                    </button>
+                    
+                    <a href="{% url 'home' %}" class="btn btn-link text-muted text-decoration-none text-center">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

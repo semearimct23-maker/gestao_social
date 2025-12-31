@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Nova Conta{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Ficha de Inscrição</h4>
+            </div>
+            <div class="card-body p-4">
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <h5 class="text-muted mb-3">Dados de Acesso</h5>
+                    {{ user_form|crispy }}
+                    
+                    <hr>
+                    
+                    <h5 class="text-muted mb-3">Dados do Aluno</h5>
+                    {{ aluno_form|crispy }}
+
+                    <div class="text-center mt-3 mb-3 p-3 border rounded bg-light">
+                        <p class="fw-bold text-secondary mb-2">--- OU tire uma foto agora ---</p>
+                        
+                        <div id="camera_container" style="display: none; margin-bottom: 10px;">
+                            <video id="video" width="100%" height="auto" autoplay style="border-radius: 10px; border: 3px solid #ccc;"></video>
+                            <canvas id="canvas" style="display: none;"></canvas>
+                        </div>
+
+                        <div>
+                            <button type="button" id="btn-start" class="btn btn-outline-info btn-sm">
+                                <i class="bi bi-camera-video"></i> Ativar Webcam
+                            </button>
+                            <button type="button" id="btn-capture" class="btn btn-warning btn-sm text-dark" style="display: none;">
+                                <i class="bi bi-camera"></i> Capturar Foto
+                            </button>
+                        </div>
+                        
+                        <div id="preview_container" style="display: none; margin-top: 10px;">
+                            <img id="photo_preview" src="" style="width: 120px; border-radius: 10px; border: 2px solid #27ae60;">
+                            <p class="text-success small fw-bold mt-1">Foto pronta para enviar!</p>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 btn-lg mt-3">
+                        Confirmar Inscrição
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ... (mesmo script de antes) ...
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const btnStart = document.getElementById('btn-start');
+    const btnCapture = document.getElementById('btn-capture');
+    const cameraContainer = document.getElementById('camera_container');
+    const previewContainer = document.getElementById('preview_container');
+    const photoPreview = document.getElementById('photo_preview');
+    const inputFoto = document.getElementById('id_foto'); 
+
+    btnStart.addEventListener('click', async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            video.srcObject = stream;
+            cameraContainer.style.display = 'block';
+            btnStart.style.display = 'none';
+            btnCapture.style.display = 'inline-block';
+            previewContainer.style.display = 'none';
+        } catch (err) {
+            alert("Erro ao acessar câmera: " + err.message);
+        }
+    });
+
+    btnCapture.addEventListener('click', () => {
+        const context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        canvas.toBlob((blob) => {
+            const file = new File([blob], "foto_registro.jpg", { type: "image/jpeg" });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            inputFoto.files = dataTransfer.files;
+            
+            photoPreview.src = URL.createObjectURL(file);
+            previewContainer.style.display = 'block';
+            
+            // Para a câmera
+            video.srcObject.getTracks().forEach(track => track.stop());
+            cameraContainer.style.display = 'none';
+            btnCapture.style.display = 'none';
+            btnStart.style.display = 'inline-block';
+            btnStart.textContent = "Tirar Outra";
+        }, 'image/jpeg');
+    });
+</script>
+
+<script>
+    document.getElementById("id_username").addEventListener("blur", function() {
+        var username = this.value;
+        var inputField = this;
+        var feedbackDiv = document.getElementById("username-feedback");
+
+        // Se não existir a div de feedback, cria ela
+        if (!feedbackDiv) {
+            feedbackDiv = document.createElement("div");
+            feedbackDiv.id = "username-feedback";
+            feedbackDiv.className = "invalid-feedback fw-bold"; // Classe do Bootstrap
+            inputField.parentNode.appendChild(feedbackDiv);
+        }
+
+        if (username) {
+            // Faz a chamada para a nossa view criada no Passo 2
+            fetch(`/ajax/verificar-usuario/?username=${username}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.existe) {
+                        // Se existe: Borda vermelha e mensagem de erro
+                        inputField.classList.add("is-invalid");
+                        inputField.classList.remove("is-valid");
+                        feedbackDiv.textContent = "⚠️ Este usuário já existe! Escolha outro.";
+                    } else {
+                        // Se está livre: Borda verde
+                        inputField.classList.remove("is-invalid");
+                        inputField.classList.add("is-valid");
+                        feedbackDiv.textContent = "";
+                    }
+                });
+        }
+    });
+</script>
+{% endblock %}

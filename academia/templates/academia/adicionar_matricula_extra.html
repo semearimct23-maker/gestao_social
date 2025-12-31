@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Nova Matrícula{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card-form">
+            <div class="form-header">
+                <h2>➕ Adicionar Curso/Horário</h2>
+                <p>Aluno: <strong>{{ aluno.user.first_name }}</strong></p>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn-submit">Matricular</button>
+                    <a href="{% url 'detalhes_aluno' aluno.id %}" class="btn btn-link text-muted text-decoration-none text-center">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

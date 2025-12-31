@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Ficha Financeira{% endblock %}
+
+{% block content %}
+<div style="padding: 20px;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            <h1>📂 Ficha Financeira</h1>
+            <h2 style="color: #2c3e50; margin-top: 0;">Aluno: {{ aluno.user.username }}</h2>
+            <p><strong>WhatsApp:</strong> {{ aluno.telefone }}</p>
+        </div>
+        
+        <div style="text-align: right;">
+            <p>Total Pago em Histórico:</p>
+            <h2 style="color: #27ae60; margin: 0;">R$ {{ total_pago }}</h2>
+        </div>
+    </div>
+
+    <hr>
+    
+    <div style="margin-bottom: 15px;">
+        <a href="{% url 'dashboard_adm' %}" style="text-decoration: none;">← Voltar para o Dashboard</a>
+    </div>
+
+    <table border="1" cellpadding="10" style="border-collapse: collapse; width: 100%;">
+        <thead style="background-color: #eee;">
+            <tr>
+                <th>Referência</th>
+                <th>Curso</th>
+                <th>Data Pagto</th>
+                <th>Método</th>
+                <th>Valor</th>
+                <th>Comprovante</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pagamentos %}
+                <tr>
+                    <td><strong>{{ p.get_mes_display }} / {{ p.ano }}</strong></td>
+                    <td>{{ p.curso.nome|default:"Geral" }}</td>
+                    <td>{{ p.data_pagamento|date:"d/m/Y" }}</td>
+                    <td>{{ p.get_metodo_display }}</td>
+                    <td>R$ {{ p.valor }}</td>
+                    <td>
+                        {% if p.comprovante %}
+                            <a href="{{ p.comprovante.url }}" target="_blank">Ver 📎</a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if p.confirmado %}
+                            <span style="color: green; font-weight: bold;">PAGO ✅</span>
+                        {% else %}
+                            <span style="color: orange; font-weight: bold;">PENDENTE ⏳</span>
+                            <a href="/admin/academia/pagamento/{{ p.id }}/change/" target="_blank" style="font-size: 0.8em;">(Editar)</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center;">Nenhum pagamento registrado para este aluno.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

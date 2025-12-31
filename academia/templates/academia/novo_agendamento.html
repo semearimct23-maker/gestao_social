@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Novo Agendamento{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card-form">
+            <div class="form-header">
+                <h2>🗓️ Agendar Aluno</h2>
+                <p>Matricular e definir horário em um passo.</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-calendar-check"></i> Confirmar Agendamento
+                    </button>
+                    
+                    <a href="{% url 'dashboard_adm' %}" class="btn btn-link text-muted text-decoration-none text-center">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

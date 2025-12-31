@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar Pagamento{% endblock %}
+
+{% block content %}
+    <h1>Informar Pagamento</h1>
+    <p>Preencha o valor e anexe seu comprovante (Foto ou PDF).</p>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {{ form.as_p }}
+        
+        <button type="submit" style="background-color: #2ecc71; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+            Enviar Comprovante
+        </button>
+    </form>
+    
+    <br>
+    <a href="{% url 'home' %}">Cancelar e Voltar</a>
+
+{% endblock %}

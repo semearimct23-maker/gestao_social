@@ -1,0 +1,182 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Gestão Social{% endblock %}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        body { background-color: #f3f4f6; font-family: 'Poppins', sans-serif; overflow-x: hidden; }
+        
+        /* SIDEBAR */
+        #sidebar-wrapper {
+            min-height: 100vh; width: 260px; margin-left: -260px;
+            background: #2c3e50; color: #fff; position: fixed;
+            transition: margin .25s ease-out; z-index: 1000;
+            overflow-y: auto;
+        }
+        #sidebar-wrapper::-webkit-scrollbar { display: none; }
+        #sidebar-wrapper { -ms-overflow-style: none; scrollbar-width: none; }
+        .list-group-item { background: transparent; color: rgba(255,255,255,0.7)!important; border: none; padding: 12px 25px;text-decoration: none; }
+        .list-group-item:hover { background: #ff6600; color: #ffffff !important; padding-left: 30px; transition: 0.2s; }
+        .list-group-item i { margin-right: 15px; width: 20px; text-align: center; }
+        .sidebar-label { padding: 20px 25px 5px 25px; font-size: 0.75rem; text-transform: uppercase; color: rgba(255,255,255,0.4); font-weight: bold; }
+        
+        /* CONTENT */
+        #page-content-wrapper { width: 100%; transition: margin .25s ease-out; }
+        .top-navbar { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 10px 20px; }
+        
+        /* FORMULÁRIOS MODERNOS */
+        .card-form { background: #fff; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); padding: 40px; margin-top: 20px; }
+        .form-control, .form-select { background-color: #f8fafc; border: 2px solid #edf2f7; border-radius: 10px; padding: 15px; }
+        .form-control:focus { border-color: #4e73df; box-shadow: 0 0 0 4px rgba(78, 115, 223, 0.1); }
+        .btn-submit { background: #4e73df; color: white; border-radius: 50px; padding: 12px; width: 100%; border: none; font-weight: bold; }
+        .btn-submit:hover { background: #2e59d9; color: white; }
+
+        @media (min-width: 768px) {
+            #sidebar-wrapper { margin-left: 0; }
+            #page-content-wrapper { margin-left: 260px; width: calc(100% - 260px); }
+            body.sb-sidenav-toggled #sidebar-wrapper { margin-left: -260px; }
+            body.sb-sidenav-toggled #page-content-wrapper { margin-left: 0; width: 100%; }
+        }
+
+        /* --- CONFIGURAÇÃO DE IMPRESSÃO --- */
+        @media print {
+            /* Esconde Menu Lateral, Barra Topo e Botões marcados com 'no-print' */
+            #sidebar-wrapper, .top-navbar, .no-print, .btn, form {
+                display: none !important;
+            }
+
+            /* Ajusta o conteúdo para ocupar a folha toda */
+            #page-content-wrapper {
+                margin: 0 !important;
+                width: 100% !important;
+                padding: 0 !important;
+            }
+
+            /* Garante fundo branco e texto preto */
+            body, #page-content-wrapper {
+                background-color: white !important;
+                color: black !important;
+            }
+
+            /* Força a tabela a aparecer bonita */
+            .card, .card-body {
+                box-shadow: none !important;
+                border: none !important;
+            }
+            
+            /* Adiciona uma assinatura no rodapé da folha */
+            body::after {
+                content: "Relatório gerado pelo Sistema Semear em " attr(data-date);
+                display: block;
+                text-align: center;
+                margin-top: 20px;
+                font-size: 12px;
+                color: #666;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="d-flex" id="wrapper">
+    <div id="sidebar-wrapper">
+        <div class="sidebar-heading">
+            <img src="{% static 'img/logo.png' %}" alt="Semear" style="max-width: 150px; height: auto;">
+        </div>
+        
+        
+
+            {% if user.is_authenticated %}
+                
+                {% if user.is_staff %}
+                    <div class="list-group list-group-flush mt-2"><a class="list-group-item" href="{% url 'home' %}"><i class="bi bi-grid"></i> Início</a>
+                    <div class="sidebar-label">Gestão</div>
+                    <a class="list-group-item" href="{% url 'dashboard_adm' %}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                    <a class="list-group-item" href="{% url 'listar_alunos' %}"><i class="bi bi-people"></i> Alunos</a> 
+                    <a class="list-group-item" href="{% url 'gerenciar_chamada_adm' %}"><i class="bi bi-calendar-check"></i> Gestão de Chamadas</a>
+                    
+                    <div class="sidebar-label">Financeiro</div>
+                    <a class="list-group-item" href="{% url 'financeiro_professores' %}"><i class="bi bi-cash-stack"></i> Pagto. Professores</a>
+                    <a class="list-group-item" href="{% url 'pagamento_manual' %}"><i class="bi bi-wallet2"></i> Pagamentos Alunos</a>
+                    <a class="list-group-item" href="{% url 'registrar_doacao' %}"><i class="bi bi-heart-fill text-danger"></i> Doações
+                    <a class="list-group-item" href="{% url 'relatorio_financeiro' %}"> <i class="bi bi-graph-up-arrow"></i> Demonstrativo Financeiro</a>
+                    </a>
+                    <a class="list-group-item" href="{% url 'agenda_geral' %}"><i class="bi bi-calendar-week"></i> Agenda do Dia</a>
+                    <a class="list-group-item" href="{% url 'novo_agendamento' %}"><i class="bi bi-calendar-plus"></i> Novo Agendamento</a>
+                    
+                    <div class="sidebar-label">Cadastros</div>
+                    <a class="list-group-item" href="{% url 'adicionar_curso' %}"><i class="bi bi-journal-plus"></i> Novo Curso</a>
+                    <a class="list-group-item" href="{% url 'listar_alunos' %}"><i class="bi bi-people"></i> Alunos</a>
+                    <a class="list-group-item" href="{% url 'listar_professores' %}"><i class="bi bi-person-video3"></i> Professores</a>
+                    
+                    <div class="sidebar-label">Relatórios</div>
+                    <a class="list-group-item" href="{% url 'gerar_relatorio_alunos' %}"><i class="bi bi-printer"></i> Relatórios</a>
+                    <div class="sidebar-label">Cobrança</div>
+                    <a class="list-group-item" href="{% url 'area_cobranca' %}"><i class="bi bi-megaphone"></i> Central de Cobrança</a>
+                    
+                {% endif %}
+
+                {% if user.professor %}
+                    
+                    <div class="sidebar-label">Docente</div>
+                    <a class="list-group-item" href="{% url 'dashboard_professor' %}"><i class="bi bi-easel"></i> Minhas Turmas</a>
+                {% endif %}
+
+                {% if not user.is_staff and not user.professor %}
+                    
+                    <div class="list-group list-group-flush mt-2"><a class="list-group-item" href="{% url 'home' %}"><i class="bi bi-grid"></i> Início</a>
+                    <div class="sidebar-label">Aluno</div>
+                    <!--<a class="list-group-item" href="{% url 'meus_pagamentos' %}"><i class="bi bi-credit-card"></i> Financeiro</a>-->
+                {% endif %}
+
+                <div class="my-4"></div>
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="list-group-item text-danger w-100 text-start"><i class="bi bi-box-arrow-left"></i> Sair</button>
+                </form>
+
+            {% else %}
+                <div class="sidebar-label">Acesso</div>
+                <a class="list-group-item" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i> Entrar</a>
+                <a class="list-group-item" href="{% url 'registrar' %}"><i class="bi bi-pencil-square"></i> Criar Conta</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div id="page-content-wrapper">
+        <nav class="navbar navbar-expand-lg top-navbar">
+            <div class="container-fluid">
+                <button class="btn btn-light" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
+                <div class="ms-auto fw-bold text-secondary">
+                    {% if user.is_authenticated %} Olá, {{ user.username }} {% else %} Bem-vindo {% endif %}
+                </div>
+             
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-light"><i class="bi bi-box-arrow-left"></i> Sair</button>
+                </form>
+            
+            </div>
+           
+        </nav>
+        <div class="container-fluid p-4">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('sidebarToggle').addEventListener('click', function(e) {
+        e.preventDefault(); document.body.classList.toggle('sb-sidenav-toggled');
+    });
+</script>
+</body>
+</html>

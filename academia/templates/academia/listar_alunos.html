@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block title %}Gerenciar Alunos{% endblock %}
+
+{% block content %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-success alert-dismissible fade show shadow-sm mt-3" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+<div style="padding: 20px;">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold text-dark">👥 Gerenciar Alunos</h1>
+            <p class="text-muted">Gestão completa de matrículas.</p>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+            <h5 class="fw-bold text-secondary mb-0">
+                <i class="bi bi-people-fill me-2"></i>Resultados
+            </h5>
+            <span class="badge bg-primary rounded-pill px-3 py-2 fs-6 shadow-sm ms-3" >
+                {{ total_encontrados }} Aluno(s) encontrado(s)
+            </span>
+        </div>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-secondary shadow-sm">
+                <i class="bi bi-printer"></i> Imprimir Lista
+            </button>
+
+            <a href="{% url 'adicionar_aluno_adm' %}" class="btn btn-success rounded-pill px-4 shadow-sm">
+                <i class="bi bi-person-plus-fill"></i> Novo Aluno
+            </a>
+        </div>
+       
+    </div>
+
+    <div class="bg-white p-4 rounded shadow-sm mb-4">
+        <form method="GET" class="row g-3">
+            
+            <div class="col-md-3">
+                <label class="small fw-bold text-muted">Buscar</label>
+                <input type="text" name="q" value="{{ termo_pesquisa }}" class="form-control" placeholder="Nome ou telefone...">
+            </div>
+
+            <div class="col-md-3">
+                <label class="small fw-bold text-muted">Curso</label>
+                <select name="curso" class="form-select">
+                    <option value="">Todos (Histótico Geral)</option>
+                   <option value="ativos" {% if filtro_curso == 'ativos' %}selected{% endif %}>
+                        ✅ Somente Matriculados (Ativos)
+                    </option>
+                    
+                    {% for curso in todos_cursos %}
+                        <option value="{{ curso.id }}" {% if filtro_curso == curso.id|stringformat:"i" %}selected{% endif %}>
+                            {{ curso.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="small fw-bold text-muted">Sexo</label>
+                <select name="sexo" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="M" {% if filtro_sexo == 'M' %}selected{% endif %}>Masculino</option>
+                    <option value="F" {% if filtro_sexo == 'F' %}selected{% endif %}>Feminino</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="small fw-bold text-muted">Igreja</label>
+                <select name="igreja" class="form-select">
+                    <option value="">Todas</option>
+                    <option value="metodista" {% if filtro_igreja == 'metodista' %}selected{% endif %}>Metodista</option>
+                    <option value="outra" {% if filtro_igreja == 'outra' %}selected{% endif %}>Outras / Nenhuma</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Filtrar</button>
+                <a href="{% url 'listar_alunos' %}" class="btn btn-outline-secondary" title="Limpar Filtros">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="font-size: 0.9em;  ">
+                <thead class="bg-light">
+                    <tr  style="text-align:center;">
+                        <th class="ps-4">Aluno</th> <th>Criado</th>  <th>Sexo</th>  <th> Data Nasc.</th>  <th>Cursos</th> <th>Responsável</th>  <th>Igreja</th>
+                        <th class="text-end pe-4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for aluno in alunos %}
+
+                  
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <a href="{% url 'detalhes_aluno' aluno.id %}" class="text-decoration-none text-dark">
+                                        <div class="fw-bold">{{ aluno.user.first_name|default:aluno.user.username }}</div>
+                                        <div class="small text-muted">  {{ aluno.telefone }}</div>
+                                        
+                                    </a>
+                                    
+                                    </div>
+                            </td>
+                            <td>
+                                
+                                {% if aluno.criado_por_admin %}
+                                            <span class="badge bg-info text-dark" style="font-size: 0.7em;">Semear</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark" style="font-size: 0.7em;">Site</span>
+                                        {% endif %}</td>
+                            <td>
+                                
+                                {% if aluno.sexo %}
+                                    <div> {{ aluno.get_sexo_display }}</div>
+                                {% endif %}
+                                {% if aluno.endereco %}
+                                    <div class="text-muted small" style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ aluno.endereco }}">
+                                        📍 {{ aluno.Bairro }}
+                                    </div>
+                                {% endif %}
+                            </td>
+                             <td>
+                                {% if aluno.data_nascimento %}
+                                    <div>{{ aluno.data_nascimento|date:"d/m/Y" }}</div>
+                                {% endif %}
+                                
+                            </td>
+
+                                                    
+                            <td style="text-align:center;">
+                                {% for matricula in aluno.matricula_set.all %}
+                                    {% if matricula.ativo %}
+                                        <span class="badge bg-light text-primary border border-primary-subtle mb-1">
+                                            {{ matricula.curso.nome }}
+                                        </span><br>
+                                    {% endif %}
+                                {% empty %}
+                                    <span class="text-muted small">Sem curso</span>
+                                {% endfor %}
+                            </td>
+
+                            <td style="text-align:center;">
+                                {% if aluno.nome_responsavel %}
+                                    <div class="fw-bold">{{ aluno.nome_responsavel }}</div>
+                                    {% if aluno.contato_responsavel %}
+                                        <div class="small text-muted"> {{ aluno.contato_responsavel }}</div>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if aluno.membro_metodista %}
+                                    <span class="text-danger fw-bold">Metodista</span>
+                                {% else %}
+                                    {{ aluno.outra_igreja|default:"-" }}
+                                {% endif %}
+                            </td>
+                            
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{% url 'toggle_status_aluno' aluno.id %}" 
+                                    class="btn btn-sm {% if aluno.user.is_active %}btn-outline-secondary{% else %}btn-outline-danger{% endif %}" 
+                                    data-bs-toggle="tooltip" title="{% if aluno.user.is_active %}Bloquear Acesso{% else %}Desbloquear{% endif %}">
+                                        <i class="bi {% if aluno.user.is_active %}bi-unlock{% else %}bi-lock-fill{% endif %}"></i>
+                                    </a>
+
+                                    <a href="{% url 'resetar_senha_aluno' aluno.id %}" 
+                                    class="btn btn-sm btn-outline-secondary" 
+                                    onclick="return confirm('Resetar senha para 123456?')"
+                                    data-bs-toggle="tooltip" title="Resetar Senha">
+                                        <i class="bi bi-key"></i>
+                                    </a>
+
+                                    <a href="{% url 'pagamento_manual' %}?aluno={{ aluno.id }}" 
+                                    class="btn btn-sm btn-success fw-bold d-flex align-items-center" 
+                                    title="Lançar Pagamento">
+                                        <i class="bi bi-cash-coin me-1"></i> Pagar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                Nenhum aluno encontrado.
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="alert alert-light border shadow-sm py-2 mb-3">
+        Exibindo <strong>{{ total_encontrados }}</strong> registros conforme sua busca.
+    </div>
+</div>
+{% endblock %}

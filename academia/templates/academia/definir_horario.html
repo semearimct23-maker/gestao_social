@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Definir Horário{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card-form">
+            <div class="form-header">
+                <h2><center>⏰ Agendar Aula</center><br></h2>
+                <p>Aluno: <strong>{{ matricula.aluno.user.first_name|default:matricula.aluno.user.username }}</strong></p>
+                <p>Curso: {{ matricula.curso.nome }}</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn-submit">Salvar Horário</button>
+                    <a href="{% url 'dashboard_professor' %}" class="btn btn-link text-muted" style="text-decoration: none; text-align: center;">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

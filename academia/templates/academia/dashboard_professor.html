@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Área do Professor{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-dark">Minhas Turmas</h2>
+        <p class="text-muted">Olá, Prof. {{ professor.user.first_name|default:professor.user.username }}!</p>
+    </div>
+    
+    <div class="bg-white p-2 rounded shadow-sm d-flex align-items-center">
+        <span class="text-muted small me-2 text-uppercase fw-bold">Data da Chamada:</span>
+        <form method="GET" style="margin: 0;">
+            <input type="date" name="data_filtro" 
+                   value="{{ data_filtro }}" 
+                   onchange="this.form.submit()"
+                   class="form-control form-control-sm border-0 bg-light fw-bold text-primary">
+        </form>
+    </div>
+</div>
+
+{% if not cursos %}
+    <div class="alert alert-warning shadow-sm rounded-3">
+        <i class="bi bi-exclamation-circle-fill me-2"></i> Você ainda não tem turmas vinculadas.
+    </div>
+{% endif %}
+
+<div class="row g-4">
+    {% for curso in cursos %}
+    <div class="col-lg-6"> <div class="card border-0 shadow-sm rounded-4 h-100">
+            
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="bg-light-purple rounded-3 p-2 me-3 text-primary">
+                        <i class="bi bi-music-note-list fs-4"></i>
+                    </div>
+                    <h5 class="mb-0 fw-bold">{{ curso.nome }}</h5>
+                </div>
+                
+                <a href="{% url 'ver_relatorio' curso.id %}" class="btn btn-sm btn-outline-primary rounded-pill">
+                    <i class="bi bi-file-earmark-text"></i> Relatório
+                </a>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Aluno</th>
+                                <th>Horário</th>
+                                <th class="text-end pe-4">Presença ({{ data_filtro|date:"d/m" }})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for matricula in curso.lista_alunos %}
+                                {% if matricula.ativo %}
+                                <tr>
+                                    <td class="ps-4 fw-medium">
+                                        {{ matricula.aluno.user.first_name|default:matricula.aluno.user.username }}
+                                    </td>
+                                    
+                                    <td>
+                                        <a href="{% url 'definir_horario' matricula.id %}" 
+                                           class="text-decoration-none badge {% if matricula.dia_semana %}bg-warning text-dark{% else %}bg-secondary text-white{% endif %}">
+                                            {% if matricula.dia_semana %}
+                                                <i class="bi bi-clock"></i> {{ matricula.get_dia_semana_display }} - {{ matricula.get_hora_aula_display }}
+                                            {% else %}
+                                                <i class="bi bi-plus-circle"></i> Definir
+                                            {% endif %}
+                                        </a>
+                                    </td>
+
+                                    <td class="text-end pe-4">
+                                        {% if matricula.status_hoje == True %}
+                                            <span class="badge bg-success me-2">PRESENTE</span>
+                                            <a href="{% url 'marcar_presenca' matricula.id 0 data_filtro %}" class="text-muted small" title="Mudar para Falta"><i class="bi bi-arrow-repeat"></i></a>
+                                        
+                                        {% elif matricula.status_hoje == False %}
+                                            <span class="badge bg-danger me-2">FALTA</span>
+                                            <a href="{% url 'marcar_presenca' matricula.id 1 data_filtro %}" class="text-muted small" title="Mudar para Presente"><i class="bi bi-arrow-repeat"></i></a>
+                                        
+                                        {% else %}
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'marcar_presenca' matricula.id 1 data_filtro %}" class="btn btn-sm btn-outline-success">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </a>
+                                                <a href="{% url 'marcar_presenca' matricula.id 0 data_filtro %}" class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-4 text-muted">
+                                        Nenhum aluno ativo nesta turma.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

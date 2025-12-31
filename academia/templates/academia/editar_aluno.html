@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %} {% block title %}Editar Aluno{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <h1>✏️ Editando: {{ aluno.user.username }}</h1>
+    <hr>
+
+    <form method="POST" enctype="multipart/form-data" style="background: #f9f9f9; padding: 20px; border-radius: 8px;">
+        {% csrf_token %}
+        
+        {{ form|crispy }}
+        
+        <div style="margin-top: 20px;">
+            <button type="submit" style="background-color: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                Salvar Alterações
+            </button>
+            <a href="{% url 'listar_alunos' %}" style="margin-left: 10px; color: #c0392b;">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<div class="row justify-content-center mt-4">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="fw-bold mb-0">📚 Cursos Matriculados</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Curso</th>
+                                <th>Status</th>
+                                <th class="text-end">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for matricula in aluno.matricula_set.all %}
+                                <tr>
+                                    <td>{{ matricula.curso.nome }}</td>
+                                    <td>
+                                        {% if matricula.ativo %}
+                                            <span class="badge bg-success">Cursando</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Encerrado em {{ matricula.data_saida|date:"d/m/Y" }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        {% if matricula.ativo %}
+                                            <a href="{% url 'desligar_matricula_adm' matricula.id %}" 
+                                               class="btn btn-outline-danger btn-sm"
+                                               onclick="return confirm('Tem certeza que deseja desligar o aluno deste curso?');">
+                                                Desligar
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="3" class="text-center text-muted">Nenhuma matrícula encontrada.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

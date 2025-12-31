@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Novo Professor{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="form-container">
+            <div class="form-header">
+                <h2>👨‍🏫 Novo Professor</h2>
+                <p>Cadastre um novo membro da equipe docente.</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn-submit">Cadastrar</button>
+                    <a href="{% url 'listar_professores' %}" class="btn btn-link text-muted" style="text-decoration: none;">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

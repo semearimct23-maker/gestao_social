@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+
+{% block title %}Ficha do Aluno{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    
+    <div class="mb-4">
+        <a href="{% url 'listar_alunos' %}" class="text-decoration-none text-muted">
+            <i class="bi bi-arrow-left"></i> Voltar para Lista
+        </a>
+    </div>
+
+    <div class="row">
+        
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body text-center pt-5 pb-4">
+
+                    <form id="form-foto-rapida" action="{% url 'atualizar_foto_aluno' aluno.id %}" method="POST" enctype="multipart/form-data" style="display: none;">
+                        {% csrf_token %}
+                        <input type="file" name="foto" id="input-foto-oculto" accept="image/*" onchange="document.getElementById('form-foto-rapida').submit();">
+                    </form>
+
+                    <div class="position-relative mx-auto mb-3 foto-interativa" 
+                        style="width: 150px; height: 150px; cursor: pointer;"
+                        onclick="document.getElementById('input-foto-oculto').click();"
+                        title="Clique para alterar a foto">
+                        
+                        {% if aluno.foto %}
+                            <img src="{{ aluno.foto.url }}" class="rounded-circle shadow-sm" style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #f8f9fa;">
+                        {% else %}
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center shadow-sm" style="width: 150px; height: 150px; border: 4px solid #f8f9fa;">
+                                <i class="bi bi-person-fill text-secondary" style="font-size: 4rem;"></i>
+                            </div>
+                        {% endif %}
+
+                        <div class="overlay-foto rounded-circle d-flex align-items-center justify-content-center">
+                            <i class="bi bi-camera-fill text-white fs-2"></i>
+                        </div>
+
+                        {% if aluno.eh_bolsista %} 
+                            <span class="position-absolute top-0 start-100 translate-middle bg-success border border-white rounded-circle shadow-sm" 
+                                data-bs-toggle="tooltip" 
+                                title="Aluno Bolsista"
+                                style="z-index: 10; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-mortarboard-fill text-white fs-5"></i>
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <h3 class="fw-bold text-dark">{{ aluno.user.first_name }}</h3>
+                    <p class="text-muted mb-1">@{{ aluno.user.username }}</p>
+                    
+                    {% if aluno.criado_por_admin %}
+                        <span class="badge bg-info text-dark">Cadastro: Secretaria</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Cadastro: Site</span>
+                    {% endif %}
+                    
+                    <div class="mt-4 d-grid gap-2">
+                        <a href="{% url 'editar_aluno_adm' aluno.id %}" class="btn btn-outline-primary rounded-pill">
+                            <i class="bi bi-pencil"></i> Editar Dados
+                        </a>
+                    </div>
+                </div>
+
+                <style>
+                    .foto-interativa { position: relative; transition: transform 0.2s; }
+                    .foto-interativa:hover { transform: scale(1.02); }
+                    .overlay-foto {
+                        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                        background-color: rgba(0, 0, 0, 0.5); opacity: 0;
+                        transition: opacity 0.3s; border: 4px solid transparent;
+                    }
+                    .foto-interativa:hover .overlay-foto { opacity: 1; }
+                </style>
+    
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-4 py-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-whatsapp text-dark me-3 fs-4"></i>
+                            <div>
+                                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">WhatsApp</small>
+                                <div class="fs-5 fw-medium text-dark">{{ aluno.telefone|default:"Não informado" }}</div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item px-4 py-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-calendar-event text-dark me-3 fs-4"></i>
+                            <div>
+                                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Nascimento</small>
+                                <div class="fs-5 fw-medium text-dark">{{ aluno.data_nascimento|date:"d/m/Y"|default:"-" }}</div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item px-4 py-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-geo-alt text-dark me-3 fs-4"></i>
+                            <div>
+                                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Endereço</small>
+                                <div class="fs-5 fw-medium text-dark" style="line-height: 1.2;">
+                                    {% if aluno.logradouro %}
+                                        {{ aluno.logradouro }}
+                                        {% if aluno.bairro %} - {{ aluno.bairro }}{% endif %}
+                                        {% if aluno.cidade %} - {{ aluno.cidade }}{% endif %}
+                                    {% else %} - {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item px-4 py-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-people text-dark me-3 fs-4"></i>
+                            <div>
+                                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Responsável</small>
+                                <div class="fs-5 fw-medium text-dark">{{ aluno.nome_responsavel|default:"-" }}</div>
+                                {% if aluno.contato_responsavel %}
+                                    <div class="text-muted small">{{ aluno.contato_responsavel }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item px-4 py-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-building text-dark me-3 fs-4"></i>
+                            <div>
+                                <small class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Igreja</small>
+                                <div class="fs-5 fw-medium text-dark">
+                                    {% if aluno.membro_metodista %}
+                                        Igreja Metodista
+                                    {% else %}
+                                        {{ aluno.outra_igreja|default:"Outra / Nenhuma" }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">📚 Cursos e Horários</h5>
+                    <a href="{% url 'adicionar_matricula_extra' aluno.id %}" class="btn btn-sm btn-success rounded-pill">
+                        <i class="bi bi-plus-lg"></i> Adicionar Curso
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Curso</th>
+                                <th>Horário</th>
+                                <th>Status</th>
+                                <th class="text-end pe-4">Ação</th> 
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in matriculas %} 
+                            <tr>
+                                <td class="ps-4 fw-bold">{{ m.curso.nome }}</td>
+                                <td>
+                                    {% if m.dia_semana and m.hora_aula %}
+                                        {{ m.get_dia_semana_display }} às {{ m.hora_aula }}
+                                    {% else %}
+                                        <span class="text-muted small">A definir</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if m.ativo %}
+                                        <span class="badge bg-success">Ativo</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inativo</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    {% if m.ativo %}
+                                        <a href="{% url 'definir_horario' m.id %}" class="btn btn-sm btn-outline-primary" title="Alterar Horário">
+                                            <i class="bi bi-clock"></i>
+                                        </a>
+                                        <a href="{% url 'desligar_matricula_adm' m.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Desligar aluno deste curso?')" title="Desligar">
+                                            <i class="bi bi-power"></i>
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'retomar_matricula_adm' m.id %}" class="btn btn-sm btn-outline-success" title="Reativar Matrícula">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Reativar
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center py-4">Nenhum curso matriculado.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0">💰 Histórico Financeiro</h5>
+                    <a href="{% url 'relatorio_financeiro_aluno' aluno.id %}" class="btn btn-sm btn-outline-secondary">Ver Detalhado</a>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Referência</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th class="text-end pe-4">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in pagamentos|slice:":5" %} 
+                            <tr>
+                                <td class="ps-4">{{ p.get_mes_display }}/{{ p.ano }}</td>
+                                <td>R$ {{ p.valor }}</td>
+                                <td>
+                                    {% if p.confirmado %}
+                                        <span class="badge bg-success">OK</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Pendente</span>
+                                    {% endif %}
+                                </td>
+                                
+                                <td class="text-end pe-4">
+                                    <a href="{% url 'editar_pagamento' p.id %}?next={{ request.path }}" 
+                                       class="btn btn-sm btn-outline-primary border-0" 
+                                       title="Editar Lançamento">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    
+                                    {% if p.comprovante %}
+                                        <a href="{{ p.comprovante.url }}" target="_blank" class="btn btn-sm btn-outline-secondary border-0" title="Ver Comprovante">
+                                            <i class="bi bi-file-earmark-image"></i>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center py-4">Nenhum pagamento registrado.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

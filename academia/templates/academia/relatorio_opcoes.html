@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Gerador de Relatórios{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card-form">
+            <div class="form-header">
+                <h2>🖨️ Gerador de Relatórios</h2>
+                <p>Escolha o que você quer imprimir.</p>
+            </div>
+
+            <form method="GET" action="{% url 'gerar_relatorio_alunos' %}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="text-primary">Filtros</h5>
+                        {{ form.curso|as_crispy_field }}
+                        {{ form.origem|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="text-primary">Colunas (O que mostrar?)</h5>
+                        {{ form.mostrar_foto|as_crispy_field }}
+                        {{ form.mostrar_telefone|as_crispy_field }}
+                        {{ form.mostrar_nascimento|as_crispy_field }}
+                        {{ form.mostrar_endereco|as_crispy_field }}
+                        {{ form.mostrar_responsavel|as_crispy_field }}
+                        {{ form.mostrar_igreja|as_crispy_field }}
+                    </div>
+                </div>
+
+                <button type="submit" name="imprimir" value="1" class="btn-submit">
+                    <i class="bi bi-file-earmark-pdf"></i> Gerar Relatório de Impressão
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

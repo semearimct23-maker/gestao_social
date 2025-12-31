@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Editar Mensagem{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h4 class="mb-4 fw-bold">Editar Mensagem</h4>
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        
+                        <div class="alert alert-light border mt-3 small text-muted">
+                            Lembre-se: Use <strong>[NOME]</strong> onde quiser que apareça o nome da pessoa.
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary fw-bold">Salvar Alterações</button>
+                            <a href="{% url 'gerenciar_mensagens' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
